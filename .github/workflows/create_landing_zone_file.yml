@@ -41,6 +41,8 @@ jobs:
           python .github/scripts/create_landing_zone_file.py ${{ inputs.accountEmail }} ${{ inputs.accountName }} ${{ inputs.ssoUserFirstName }} ${{ inputs.ssoUserLastName }}
       - name: Commit new landing zone file
         run: |
+          git config --global user.email "mor@getport.io"
+          git config --global user.name "Mor Paz"
           git add .
           git commit -m "add new landing zone for account ${{ inputs.accountName }}"
           git push --force-with-lease origin main

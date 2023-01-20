@@ -41,8 +41,11 @@ def update_file_with_inputs(base_content: str, inputs):
 
 
 def output_new_content_file(account_name, updated_content):
-    with open(f'{sanitize_account_name(account_name)}.tf', 'w') as f:
+    output_file_name = f'{sanitize_account_name(account_name)}.tf'
+    complete_output_path = os.path.join(FILE_OUTPUT_PATH, output_file_name)
+    with open(complete_output_path, 'w') as f:
         f.write(updated_content)
+    print(f'Created file {output_file_name} at path {complete_output_path}')
 
 
 def main():
