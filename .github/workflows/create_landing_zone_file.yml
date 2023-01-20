@@ -57,7 +57,7 @@ jobs:
         with:
           clientId: ${{ secrets.PORT_CLIENT_ID }}
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
-          identifier: ${{ inputs.accountEmail }}
+          identifier: ${{ inputs.accountName }}
           blueprint: landingZone
           title: ${{ inputs.accountName }}
           properties: |
