@@ -1,0 +1,68 @@
+name: Create landing zone file
+
+run-name: Create landing zone for ${{ inputs.EMAIL }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      accountEmail:
+        required: true
+        description: "New account email"
+        type: string
+      accountName:
+        required: true
+        description: "New account name"
+        type: string
+      ssoUserFirstName:
+        required: true
+        description: "New account SSO user first name"
+        type: string
+      ssoUserLastName:
+        required: true
+        description: "New account SSO user last name"
+        type: string
+      port-payload:
+        required: true
+        description: "Port's payload, including details for who triggered the action and general context (blueprint, run id, etc...)"
+        type: string
+
+jobs:
+  create-landing-zone-file:
+    name: Create new landing zone file from inputs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+          token: ${{ secrets.MACHINE_USER_GITHUB_TOKEN }}
+      - name: Call scrip to generate new file
+        run: |
+          python .github/scripts/create_landing_zone_file.py ${{ inputs.accountEmail }} ${{ inputs.accountName }} ${{ inputs.ssoUserFirstName }} ${{ inputs.ssoUserLastName }}
+      - name: Commit new landing zone file
+        run: |
+          git add .
+          git commit -m "add new landing zone for account ${{ inputs.accountName }}"
+          git push --force-with-lease origin main
+  report-deployment:
+    name: Report new deployment Entity
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract SHA short
+        run: echo "SHA_SHORT=${GITHUB_SHA:0:7}" >> $GITHUB_ENV
+      - name: "Report deployment Entity to port 🚢"
+        uses: port-labs/port-github-action@v1
+        with:
+          clientId: ${{ secrets.PORT_CLIENT_ID }}
+          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+          identifier: ${{ inputs.accountEmail }}
+          blueprint: landingZone
+          title: ${{ inputs.accountName }}
+          properties: |
+            {
+               "email": "${{ inputs.accountEmail }}",
+               "ssoUserFirstName": "${{ inputs.ssoUserFirstName }}",
+               "ssoUserLastName": "${{ inputs.ssoUserLastName }}",
+               "status": "Provisioning"
+            }
+          runId: "${{fromJson(inputs.port_payload).context.runId}}"
