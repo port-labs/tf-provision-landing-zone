@@ -21,7 +21,7 @@ on:
         required: true
         description: "New account SSO user last name"
         type: string
-      port-payload:
+      port_payload:
         required: true
         description: "Port's payload, including details for who triggered the action and general context (blueprint, run id, etc...)"
         type: string
