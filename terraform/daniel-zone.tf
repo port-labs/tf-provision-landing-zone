@@ -74,3 +74,7 @@ resource "port-labs_entity" "port-lz-provisioner-account-daniel-zone" {
     value = "https://github.com/port-labs/tf-provision-landing-zone/blob/main/terraform/daniel-zone.tf"
   }
 }
+
+output "run_id-daniel-zone" {
+  value = "r_mDueFOQyf8Q7jpDx"
+}

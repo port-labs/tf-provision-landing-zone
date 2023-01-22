@@ -11,7 +11,8 @@ PLACEHOLDERS = [
     "ACCOUNT_NAME_PH",
     "SSO_FIRST_NAME_PH",
     "SSO_LAST_NAME_PH",
-    "FILE_URL_PH"
+    "FILE_URL_PH",
+    "PORT_RUN_ID_PH"
 ]
 
 BASE_DEFINITION_FILE_URL = "https://github.com/port-labs/tf-provision-landing-zone/blob/main/terraform/"
@@ -28,12 +29,13 @@ def read_template_file():
     return file_content
 
 
-def print_inputs(email, name, first_name, last_name):
+def print_inputs(email, name, first_name, last_name, run_id):
     print(f'Received inputs:')
     print(f'email: {email}')
     print(f'account name: {name}')
     print(f'first name: {first_name}')
     print(f'last name: {last_name}')
+    print(f'run id: {run_id}')
 
 
 def update_file_with_inputs(base_content: str, inputs):
@@ -57,16 +59,18 @@ def main():
     parser.add_argument('name', help='New account name')
     parser.add_argument('first', help='New account SSO user first name')
     parser.add_argument('last', help='New account SSO user last name')
+    parser.add_argument('run_id', help='Port SSA run ID for the provision request')
     args = parser.parse_args()
     email = args.email
     account_name = args.name
     first_name = args.first
     last_name = args.last
-    print_inputs(email, account_name, first_name, last_name)
+    run_id = args.run_id
+    print_inputs(email, account_name, first_name, last_name, run_id)
     template_file_content = read_template_file()
     updated_content = update_file_with_inputs(template_file_content,
                                               [email, account_name, first_name, last_name,
-                                               f'{BASE_DEFINITION_FILE_URL}{sanitize_account_name(account_name)}.tf'])
+                                               f'{BASE_DEFINITION_FILE_URL}{sanitize_account_name(account_name)}.tf'], run_id)
     output_new_content_file(account_name, updated_content)
 
 

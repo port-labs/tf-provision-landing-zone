@@ -74,3 +74,7 @@ resource "port-labs_entity" "port-lz-provisioner-account-ACCOUNT_NAME_PH" {
     value = "FILE_URL_PH"
   }
 }
+
+output "run_id-ACCOUNT_NAME_PH" {
+  value = "PORT_RUN_ID_PH"
+}
