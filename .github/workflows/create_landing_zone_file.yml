@@ -44,7 +44,7 @@ jobs:
           git config --global user.email "mor@getport.io"
           git config --global user.name "Mor Paz"
           git add .
-          git commit -m "add new landing zone for account ${{ inputs.accountName }}"
+          git commit -m "${{fromJson(inputs.port_payload).context.runId}} add new landing zone for account ${{ inputs.accountName }}"
           git push --force-with-lease origin main
   # report-deployment:
   #   name: Report new deployment Entity

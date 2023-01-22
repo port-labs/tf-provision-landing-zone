@@ -42,7 +42,7 @@ jobs:
       - name: Extract relevant output
         id: plan-output
         run: |
-          echo "RUN_ID=$(terraform output -json | jq '."run_id-${{ inputs.accountName }}".value')" >> $GITHUB_ENV
+          echo "RUN_ID=$(echo ${{ github.event.head_commit.message }} | awk '{ print $1}')" >> $GITHUB_ENV
       - name: GetToken
         uses: fjogeleit/http-request-action@v1
         id: get-token
