@@ -8,6 +8,10 @@ terraform {
       source  = "port-labs/port-labs"
       version = "~> 0.5.1"
     }
+    mock = {
+      source  = "liamcervante/mock"
+      version = "0.2.0"
+    }
   }
 }
 
