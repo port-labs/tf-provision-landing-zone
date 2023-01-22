@@ -10,8 +10,11 @@ PLACEHOLDERS = [
     "ACCOUNT_EMAIL_PH",
     "ACCOUNT_NAME_PH",
     "SSO_FIRST_NAME_PH",
-    "SSO_LAST_NAME_PH"
+    "SSO_LAST_NAME_PH",
+    "FILE_URL_PH"
 ]
+
+BASE_DEFINITION_FILE_URL = "https://github.com/port-labs/tf-provision-landing-zone/blob/main/terraform/"
 
 
 def sanitize_account_name(account_name: str):
@@ -42,7 +45,7 @@ def update_file_with_inputs(base_content: str, inputs):
 
 def output_new_content_file(account_name, updated_content):
     output_file_name = f'{sanitize_account_name(account_name)}.tf'
-    complete_output_path = os.path.join(FILE_OUTPUT_PATH, output_file_name)
+    complete_output_path = os.path.join(FILE_OUTPUT_PATH, 'terraform', output_file_name)
     with open(complete_output_path, 'w') as f:
         f.write(updated_content)
     print(f'Created file {output_file_name} at path {complete_output_path}')
@@ -61,7 +64,9 @@ def main():
     last_name = args.last
     print_inputs(email, account_name, first_name, last_name)
     template_file_content = read_template_file()
-    updated_content = update_file_with_inputs(template_file_content, [email, account_name, first_name, last_name])
+    updated_content = update_file_with_inputs(template_file_content,
+                                              [email, account_name, first_name, last_name,
+                                               f'{BASE_DEFINITION_FILE_URL}{sanitize_account_name(account_name)}.tf'])
     output_new_content_file(account_name, updated_content)
 
 

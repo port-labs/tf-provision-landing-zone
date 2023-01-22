@@ -1,0 +1,77 @@
+name: Apply terraform configuration
+
+concurrency:
+  group: "terraform-provisioner"
+  cancel-in-progress: false
+
+on:
+  push:
+    branches:
+      - "main"
+    paths:
+      - "terraform/**/*.tf"
+
+jobs:
+  pull-and-apply:
+    defaults:
+      run:
+        working-directory: terraform
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      PORT_CLIENT_ID: ${{ secrets.PORT_CLIENT_ID }}
+      PORT_CLIENT_SECRET: ${{ secrets.PORT_CLIENT_SECRET }}
+      AWS_REGION: "eu-west-1"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          persist-credentials: true
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+      - name: Terraform Init
+        id: init
+        run: terraform init
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+      - name: Terraform Apply
+        id: apply
+        run: terraform apply -auto-approve -var port_client_id=${{ env.PORT_CLIENT_ID }} -var port_client_secret=${{ env.PORT_CLIENT_SECRET }} -no-color
+      # - name: Extract relevant output
+      #   id: plan-output
+      #   run: |
+      #     echo "Branch is: ${{ env.BRANCH_NAME }}"
+      #     echo "DB_NAME=$(terraform output ${{ env.BRANCH_NAME }} | tr -d '"' | tr -d '\n')" >> $GITHUB_ENV
+      #     echo "SERVICE_IDENTIFIER=$(terraform output ${{ env.BRANCH_NAME }}-service_identifier | tr -d '"' | tr -d '\n')" >> $GITHUB_ENV
+      # - name: Update service entity with new DB
+      #   uses: port-labs/port-github-action@v1
+      #   with:
+      #     clientId: ${{ secrets.PORT_CLIENT_ID }}
+      #     clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+      #     identifier: ${{ env.SERVICE_IDENTIFIER }}
+      #     blueprint: service
+      #     runId: ${{ env.BRANCH_NAME }}
+      #     properties: |
+      #       {}
+      #     relations: |
+      #       {
+      #         "databases": ["${{ env.DB_NAME }}"]
+      #       }
+      # - name: GetToken
+      #   uses: fjogeleit/http-request-action@v1
+      #   id: get-token
+      #   with:
+      #     url: "https://api.getport.io/v1/auth/access_token"
+      #     method: "POST"
+      #     customHeaders: '{"Content-Type": "application/json"}'
+      #     data: '{"clientId": "${{ secrets.PORT_CLIENT_ID }}", "clientSecret": "${{ secrets.PORT_CLIENT_SECRET }}"}'
+      # - name: FinishAction
+      #   uses: fjogeleit/http-request-action@v1
+      #   with:
+      #     url: "https://api.getport.io/v1/actions/runs/${{ env.BRANCH_NAME }}"
+      #     method: "PATCH"
+      #     bearerToken: ${{ fromJson(steps.get-token.outputs.response).accessToken }}
+      #     customHeaders: '{"Content-Type": "application/json"}'
+      #     data: '{"status": "SUCCESS", "link": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}'

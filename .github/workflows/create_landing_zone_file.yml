@@ -1,6 +1,6 @@
 name: Create landing zone file
 
-run-name: Create landing zone for ${{ inputs.EMAIL }}
+run-name: Create landing zone for ${{ inputs.accountName }} - ${{ inputs.accountEmail }}
 
 on:
   workflow_dispatch:
@@ -46,25 +46,25 @@ jobs:
           git add .
           git commit -m "add new landing zone for account ${{ inputs.accountName }}"
           git push --force-with-lease origin main
-  report-deployment:
-    name: Report new deployment Entity
-    runs-on: ubuntu-latest
-    steps:
-      - name: Extract SHA short
-        run: echo "SHA_SHORT=${GITHUB_SHA:0:7}" >> $GITHUB_ENV
-      - name: "Report deployment Entity to port 🚢"
-        uses: port-labs/port-github-action@v1
-        with:
-          clientId: ${{ secrets.PORT_CLIENT_ID }}
-          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
-          identifier: ${{ inputs.accountName }}
-          blueprint: landingZone
-          title: ${{ inputs.accountName }}
-          properties: |
-            {
-               "email": "${{ inputs.accountEmail }}",
-               "ssoUserFirstName": "${{ inputs.ssoUserFirstName }}",
-               "ssoUserLastName": "${{ inputs.ssoUserLastName }}",
-               "status": "Provisioning"
-            }
-          runId: "${{fromJson(inputs.port_payload).context.runId}}"
+  # report-deployment:
+  #   name: Report new deployment Entity
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Extract SHA short
+  #       run: echo "SHA_SHORT=${GITHUB_SHA:0:7}" >> $GITHUB_ENV
+  #     - name: "Report deployment Entity to port 🚢"
+  #       uses: port-labs/port-github-action@v1
+  #       with:
+  #         clientId: ${{ secrets.PORT_CLIENT_ID }}
+  #         clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+  #         identifier: ${{ inputs.accountName }}
+  #         blueprint: landingZone
+  #         title: ${{ inputs.accountName }}
+  #         properties: |
+  #           {
+  #              "email": "${{ inputs.accountEmail }}",
+  #              "ssoUserFirstName": "${{ inputs.ssoUserFirstName }}",
+  #              "ssoUserLastName": "${{ inputs.ssoUserLastName }}",
+  #              "status": "Provisioning"
+  #           }
+  #         runId: "${{fromJson(inputs.port_payload).context.runId}}"
