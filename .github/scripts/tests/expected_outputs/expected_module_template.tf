@@ -5,19 +5,19 @@
    source = "./modules/aft-account-request"
 
    control_tower_parameters = {
-     AccountEmail = "{{ email }}"
-     AccountName  = "{{ account_name }}"
+     AccountEmail = "email@email.com"
+     AccountName  = "kukuriku"
      # Syntax for top-level OU
      ManagedOrganizationalUnit = "Sandbox"
      # Syntax for nested OU
      # ManagedOrganizationalUnit = "Sandbox (ou-xfe5-a8hb8ml8)"
-     SSOUserEmail     = "{{ email }}"
-     SSOUserFirstName = "{{ first_name }}"
-     SSOUserLastName  = "{{ last_name }}"
+     SSOUserEmail     = "email@email.com"
+     SSOUserFirstName = "kuku"
+     SSOUserLastName  = "riku"
    }
 
    account_tags = {
-     "ABC:Owner"       = "{{ email }}"
+     "ABC:Owner"       = "email@email.com"
      "ABC:Division"    = "ENT"
      "ABC:Environment" = "Dev"
      "ABC:CostCenter"  = "123456"
@@ -28,7 +28,7 @@
    }
 
    change_management_parameters = {
-     change_requested_by = "{{ first_name }} {{ last_name }}"
+     change_requested_by = "kuku riku"
      change_reason       = "testing the account vending process"
    }
 

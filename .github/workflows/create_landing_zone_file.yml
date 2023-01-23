@@ -35,36 +35,54 @@ jobs:
         with:
           persist-credentials: true
           fetch-depth: 0
-          token: ${{ secrets.MACHINE_USER_GITHUB_TOKEN }}
-      - name: Call scrip to generate new file
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Call script to generate new file
         run: |
-          python .github/scripts/create_landing_zone_file.py ${{ inputs.accountEmail }} ${{ inputs.accountName }} ${{ inputs.ssoUserFirstName }} ${{ inputs.ssoUserLastName }}
+          python .github/scripts/create_landing_zone_file.py ${{ github.event.inputs.accountEmail }} ${{ github.event.inputs.accountName }} ${{ github.event.inputs.ssoUserFirstName }} ${{ github.event.inputs.ssoUserLastName }}
       - name: Commit new landing zone file
         run: |
-          git config --global user.email "mor@getport.io"
-          git config --global user.name "Mor Paz"
+          git config --global user.email "devops@orca.security"
+          git config --global user.name "Devops automated GitHub action for port"
           git add .
-          git commit -m "${{fromJson(inputs.port_payload).context.runId}} add new landing zone for account ${{ inputs.accountName }}"
+          git commit -m "${{fromJson(github.event.inputs.port_payload).context.runId}} add new landing zone for account ${{ github.event.inputs.accountName }}"
           git push --force-with-lease origin main
-  # report-deployment:
-  #   name: Report new deployment Entity
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Extract SHA short
-  #       run: echo "SHA_SHORT=${GITHUB_SHA:0:7}" >> $GITHUB_ENV
-  #     - name: "Report deployment Entity to port 🚢"
-  #       uses: port-labs/port-github-action@v1
-  #       with:
-  #         clientId: ${{ secrets.PORT_CLIENT_ID }}
-  #         clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
-  #         identifier: ${{ inputs.accountName }}
-  #         blueprint: landingZone
-  #         title: ${{ inputs.accountName }}
-  #         properties: |
-  #           {
-  #              "email": "${{ inputs.accountEmail }}",
-  #              "ssoUserFirstName": "${{ inputs.ssoUserFirstName }}",
-  #              "ssoUserLastName": "${{ inputs.ssoUserLastName }}",
-  #              "status": "Provisioning"
-  #           }
-  #         runId: "${{fromJson(inputs.port_payload).context.runId}}"
+      - name: "Report deployment Entity to port 🚢"
+        uses: port-labs/port-github-action@v1
+        with:
+          clientId: ${{ secrets.PORT_CLIENT_ID }}
+          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+          identifier: ${{ github.event.inputs.accountName }}
+          blueprint: landingZone
+          title: ${{ github.event.inputs.accountName }}
+          properties: |
+            {
+               "email": "${{ github.event.inputs.accountEmail }}",
+               "ssoUserFirstName": "${{ github.event.inputs.ssoUserFirstName }}",
+               "ssoUserLastName": "${{ github.event.inputs.ssoUserLastName }}",
+               "status": "Provisioning"
+            }
+          runId: "${{fromJson(github.event.inputs.port_payload).context.runId}}"
+
+  report-deployment:
+   name: Update deployment Entity
+   needs: create-landing-zone-file
+   runs-on: ubuntu-latest
+   steps:
+     - name: Extract SHA short
+       run: echo "SHA_SHORT=${GITHUB_SHA:0:7}" >> $GITHUB_ENV
+     - name: "Report deployment Entity to port 🚢"
+       uses: port-labs/port-github-action@v1
+       with:
+         clientId: ${{ secrets.PORT_CLIENT_ID }}
+         clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+         identifier: ${{ github.event.inputs.accountName }}
+         blueprint: landingZone
+         title: ${{ github.event.inputs.accountName }}
+         properties: |
+           {
+              "email": "${{ github.event.inputs.accountEmail }}",
+              "ssoUserFirstName": "${{ github.event.inputs.ssoUserFirstName }}",
+              "ssoUserLastName": "${{ github.event.inputs.ssoUserLastName }}",
+              "status": "Active"
+           }
+         runId: "${{fromJson(github.event.inputs.port_payload).context.runId}}"
